@@ -1,0 +1,197 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider     = "mysql"
+    url          = env("DATABASE_URL")
+    relationMode = "prisma"
+}
+
+model Example {
+    id String @id @default(cuid())
+}
+
+enum ROLE {
+    ADMIN
+    MANAGER
+    WORKER
+    USER
+}
+
+enum KIND {
+    CHECKBOX
+    RADIO
+}
+
+enum PAYMENTSTATUS {
+    FAILED
+    SUCCESS
+    PENDING
+}
+
+enum PAYMENTTYPE {
+    CASH
+    VNPAY
+}
+
+enum ORDERTYPE {
+    SCHEDULE
+    NOW
+}
+
+// Necessary for Next auth
+model Account {
+    id                String  @id @default(cuid())
+    userId            String
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String?
+    access_token      String? @db.Text
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String? @db.Text
+    session_state     String?
+    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([provider, providerAccountId])
+    @@index([userId])
+}
+
+model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+}
+
+model User {
+    id            String    @id @default(cuid())
+    name          String    @default("")
+    email         String?   @unique
+    username      String?
+    password      String?
+    emailVerified DateTime?
+    image         String?
+    firstTime     Boolean   @default(true)
+    accounts      Account[]
+    sessions      Session[]
+    point         Int       @default(0)
+    role          ROLE      @default(USER)
+    orders        Order[]
+    products      Cart[]
+    phoneNumber   String    @default("")
+    createdAt     DateTime  @default(now())
+}
+
+model VerificationToken {
+    identifier String
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
+}
+
+model Category {
+    id             String           @id @default(cuid())
+    title          String
+    slug           String           @unique
+    products       Product[]
+    isDeleted      Boolean          @default(false)
+    OptionCategory OptionCategory[]
+}
+
+model Cart {
+    id        String  @id @default(cuid())
+    productId String
+    userId    String
+    quantity  Int
+    option    Json
+    product   Product @relation(fields: [productId], references: [id])
+    user      User    @relation(fields: [userId], references: [id])
+
+    @@index([productId])
+    @@index([userId])
+}
+
+model Product {
+    id           String        @id @default(cuid())
+    title        String
+    code         String
+    price        Int
+    image        String
+    description  String?
+    stock        Int           @default(0)
+    onSale       Boolean       @default(false)
+    isDeleted    Boolean       @default(false)
+    categoryId   String
+    category     Category      @relation(fields: [categoryId], references: [id])
+    orderDetails OrderDetail[]
+    cart         Cart[]
+    createdAt    DateTime      @default(now())
+
+    @@index([categoryId])
+}
+
+model Order {
+    id              String        @id @default(cuid())
+    code            String        @unique
+    grandTotal      Int
+    phoneNumber     String
+    deliverTimeFrom String        @default("")
+    deliverTimeTo   String        @default("")
+    paymentType     PAYMENTTYPE   @default(VNPAY)
+    paymentStatus   PAYMENTSTATUS @default(SUCCESS)
+    orderType       ORDERTYPE     @default(NOW)
+    userId          String
+    user            User          @relation(fields: [userId], references: [id])
+    orderDetail     OrderDetail[]
+    createdAt       DateTime      @default(now())
+    updatedAt       DateTime      @default(now())
+
+    @@index([userId])
+}
+
+model OrderDetail {
+    id        String   @id @default(cuid())
+    quantity  Int
+    total     Int
+    price     Int
+    productId String
+    product   Product  @relation(fields: [productId], references: [id])
+    orderId   String
+    order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+    option    Json?
+    createdAt DateTime @default(now())
+
+    @@index([productId])
+    @@index([orderId])
+}
+
+model OptionCategory {
+    id         String   @id @default(cuid())
+    title      String
+    code       String
+    kind       KIND     @default(RADIO)
+    limit      Int      @default(0)
+    choices    Choice[]
+    categoryId String
+    category   Category @relation(fields: [categoryId], references: [id])
+
+    @@index([categoryId])
+}
+
+model Choice {
+    id               String         @id @default(cuid())
+    title            String
+    price            Int
+    optionCategoryId String
+    optionCategory   OptionCategory @relation(fields: [optionCategoryId], references: [id])
+
+    @@index([optionCategoryId])
+}
