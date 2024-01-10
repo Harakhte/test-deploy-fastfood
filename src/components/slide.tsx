@@ -8,8 +8,8 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 
 import { Navigation } from "swiper";
-import FirstBanner from "../assets/banner-1.jpg";
-import SecondBanner from "../assets/banner-2.jpg";
+import FirstBanner from "../assets/banner-2.jpg";
+import SecondBanner from "../assets/banner-1.jpg";
 import ThirdBanner from "../assets/banner-3.jpg";
 
 export default function CaptionCarousel() {
