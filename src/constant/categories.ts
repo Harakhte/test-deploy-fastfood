@@ -7,13 +7,13 @@ import Breakfast from "../assets/breakfast.svg";
 
 export const CATEGORIES = [
   {
-    title: "Đồ ăn nhanh",
-    slug: "do-an-nhanh",
+    title: "Fast food",
+    slug: "fast-food",
     image: FastFood,
   },
   {
-    title: "Thức uống",
-    slug: "thuc-uong",
+    title: "Drink",
+    slug: "drink",
     image: Drink,
   },
   {
@@ -27,13 +27,13 @@ export const CATEGORIES = [
     image: Pizza,
   },
   {
-    title: "Bánh mì",
-    slug: "banh-mi",
+    title: "Hamburger",
+    slug: "hamburger",
     image: Hamburger,
   },
   {
-    title: "Ăn sáng",
-    slug: "an-sang",
+    title: "Breakfast",
+    slug: "breakfast",
     image: Breakfast,
   },
 ];
